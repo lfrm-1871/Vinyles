@@ -1,0 +1,325 @@
+[
+  {
+    "artiste": "Stromae",
+    "titre": "Multitude",
+    "annee": 2022,
+    "genre": "Électronique",
+    "label": "Mosaert / Polydor",
+    "format": "LP",
+    "pochette": "",
+    "notes": "Genre et label à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "Linkin Park",
+    "titre": "From Zero",
+    "annee": 2024,
+    "genre": "Alternative",
+    "label": "Warner Records",
+    "format": "LP",
+    "pochette": "",
+    "notes": "Genre indiqué par une boutique, à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "Linkin Park",
+    "titre": "Hybrid Theory",
+    "annee": 2000,
+    "genre": "Nu metal",
+    "label": "Warner Bros.",
+    "format": "LP",
+    "pochette": "",
+    "notes": "Premier album studio. Genre et label à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "The Rolling Stones",
+    "titre": "Sticky Fingers",
+    "annee": 1971,
+    "genre": "Rock",
+    "label": "Rolling Stones Records",
+    "format": "LP",
+    "pochette": "",
+    "notes": "Pochette de Andy Warhol avec la vraie fermeture éclair. Genre et label à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "Cypress Hill",
+    "titre": "Black Sunday",
+    "annee": 1993,
+    "genre": "Hip-hop",
+    "label": "Ruffhouse / Columbia",
+    "format": "LP",
+    "pochette": "",
+    "notes": "Genre et label à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "Red Hot Chili Peppers",
+    "titre": "Californication",
+    "annee": 1999,
+    "genre": "Rock alternatif",
+    "label": "Warner Bros. Records",
+    "format": "LP",
+    "pochette": "",
+    "notes": "Sortie le 8 juin 1999 selon la recherche Google. Genre et label à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "Simple Plan",
+    "titre": "Still Not Getting Any...",
+    "annee": 2004,
+    "genre": "Pop punk",
+    "label": "Lava / Atlantic",
+    "format": "LP",
+    "edition": "Coke bottle (vinyle coloré)",
+    "signe": true,
+    "pochette": "",
+    "notes": "Pochette signée par des membres du groupe. Genre et label à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "Angèle",
+    "titre": "Nonante-Cinq",
+    "annee": 2021,
+    "genre": "Pop",
+    "label": "Universal",
+    "format": "LP",
+    "pochette": "",
+    "notes": "Deuxième album de l'artiste. Année, genre et label à confirmer (la recherche n'a pas donné de fiche détaillée). Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "Jamiroquai",
+    "titre": "Emergency on Planet Earth",
+    "annee": 1993,
+    "genre": "Funk / Acid jazz",
+    "label": "Sony Soho Square",
+    "format": "LP",
+    "pochette": "",
+    "notes": "Premier album, sorti le 14 juin 1993 selon la recherche Google. Label à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "Queen",
+    "titre": "Greatest Hits",
+    "annee": 1981,
+    "genre": "Rock",
+    "label": "EMI",
+    "format": "2LP",
+    "pochette": "",
+    "notes": "Double vinyle (2LP). Année, label et genre à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "AC/DC",
+    "titre": "Back in Black",
+    "annee": 1980,
+    "genre": "Hard rock",
+    "label": "Atlantic",
+    "format": "LP",
+    "pochette": "",
+    "notes": "Sorti en juillet 1980 selon la recherche Google. Label et genre à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "Blink-182",
+    "titre": "Enema of the State",
+    "annee": 1999,
+    "genre": "Pop-punk",
+    "label": "MCA",
+    "format": "LP",
+    "pochette": "",
+    "notes": "Sorti le 28 septembre 1999 selon la recherche Google. Autocollant « Parental Advisory » visible sur la pochette. Label et genre à confirmer. Pochette à recadrer en carré. Exemplaire avec défaut : verso imprimé à 90°, acheté chez Cultura (24,99 €). Un second exemplaire sans défaut est prévu."
+  },
+  {
+    "artiste": "Blink-182",
+    "titre": "One More Time...",
+    "annee": 2023,
+    "genre": "Pop-punk",
+    "label": "à confirmer",
+    "format": "LP",
+    "pochette": "",
+    "notes": "Sorti en 2023 selon la recherche Google. Label et genre à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "Blink-182",
+    "titre": "One More Time... Part 2",
+    "annee": null,
+    "genre": "Pop-punk",
+    "label": "à confirmer",
+    "format": "LP",
+    "pochette": "",
+    "notes": "Deuxième partie de One More Time... Année à confirmer. Label à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "Johnny Hallyday",
+    "titre": "Mon pays c'est l'amour",
+    "annee": null,
+    "genre": "Rock français",
+    "label": "à confirmer",
+    "format": "LP",
+    "pochette": "",
+    "notes": "Année, label et genre à confirmer (la recherche Google ne donne pas la date). Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "Simple Plan",
+    "titre": "No Pads, No Helmets... Just Balls",
+    "annee": 2002,
+    "genre": "Pop punk",
+    "label": "Atlantic",
+    "format": "LP",
+    "pochette": "",
+    "notes": "Premier album studio, sorti en 2002 selon la recherche Google. Autocollant « 75 ans Atlantic » sur la pochette. Label et genre à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "Louise Attaque",
+    "titre": "Louise Attaque",
+    "annee": 1997,
+    "genre": "Rock français",
+    "label": "à confirmer",
+    "format": "LP",
+    "pochette": "",
+    "notes": "Premier album éponyme, sorti en avril 1997 selon la recherche Google. Label à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "The Offspring",
+    "titre": "Conspiracy of One",
+    "annee": null,
+    "genre": "Punk rock",
+    "label": "à confirmer",
+    "format": "LP",
+    "pochette": "",
+    "notes": "Année à confirmer (la recherche Google ne la donne pas). Label à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "The Offspring",
+    "titre": "Supercharged",
+    "annee": 2024,
+    "genre": "Punk rock",
+    "label": "Concord Records",
+    "format": "LP",
+    "pochette": "",
+    "notes": "Sorti le 11 octobre 2024 selon la recherche Google. Genre à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "The Offspring",
+    "titre": "Americana",
+    "annee": 1998,
+    "genre": "Punk rock",
+    "label": "à confirmer",
+    "format": "LP",
+    "pochette": "",
+    "notes": "Année de sortie à confirmer (de mémoire, 1998, non vérifié par la recherche). Label à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "Limp Bizkit",
+    "titre": "Significant Other",
+    "annee": 1999,
+    "genre": "Nu metal",
+    "label": "Interscope",
+    "format": "LP",
+    "pochette": "",
+    "notes": "Sorti en juin 1999 selon Wikipédia (via la recherche Google). Label et genre à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "System of a Down",
+    "titre": "Mezmerize",
+    "annee": 2005,
+    "genre": "Metal alternatif",
+    "label": "American Recordings / Columbia",
+    "format": "LP",
+    "pochette": "",
+    "notes": "Album sorti en mai 2005 selon la recherche Google. Cette édition vinyle est une réédition (notamment de 2018). Label et genre à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "System of a Down",
+    "titre": "Toxicity",
+    "annee": 2001,
+    "genre": "Metal alternatif",
+    "label": "American Recordings / Columbia",
+    "format": "LP",
+    "pochette": "",
+    "notes": "Sorti initialement en septembre 2001 selon la recherche Google. Date de cette édition vinyle à confirmer. Label et genre à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "Daft Punk",
+    "titre": "Human After All",
+    "annee": 2005,
+    "genre": "Electronic",
+    "label": "Virgin",
+    "format": "2LP",
+    "pochette": "",
+    "notes": "Sorti initialement en mars 2005, troisième album du duo selon la recherche Google. Exemplaire scellé sous film plastique. Label et genre à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "Soprano",
+    "titre": "Cosmopolitanie",
+    "annee": 2014,
+    "genre": "Rap français",
+    "label": "à confirmer",
+    "format": "LP",
+    "pochette": "",
+    "notes": "Sorti en 2014 selon la recherche Google. Étiquette de prix visible sur la pochette. Label à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "Soprano",
+    "titre": "Freedom",
+    "annee": 2024,
+    "genre": "Rap français",
+    "label": "Rec. 118",
+    "format": "LP",
+    "pochette": "",
+    "notes": "Sorti le 21 juin 2024 selon la recherche Google. Autocollant « 2 pour 60 € » sur la pochette, à noter pour le prix d'achat. Genre à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "Red Hot Chili Peppers",
+    "titre": "Unlimited Love",
+    "annee": 2022,
+    "genre": "Rock alternatif",
+    "label": "Warner Records",
+    "format": "2LP",
+    "pochette": "",
+    "notes": "Double vinyle de 17 chansons, sorti le 1er avril 2022 selon la recherche Google. Exemplaire scellé sous film plastique. Genre à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "Måneskin",
+    "titre": "Chosen",
+    "annee": 2017,
+    "genre": "Rock",
+    "label": "à confirmer",
+    "format": "EP",
+    "pochette": "",
+    "notes": "EP paru initialement en 2017 selon la recherche Google. Format EP (et non LP) : à confirmer sur le disque. Label et genre à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "Disturbed",
+    "titre": "The Sickness",
+    "annee": 2025,
+    "genre": "Metal",
+    "label": "Reprise / Warner",
+    "format": "LP",
+    "edition": "25e anniversaire, édition limitée, vinyle coloré, exclusivité Cultura",
+    "pochette": "",
+    "notes": "Édition 25e anniversaire du premier album (sorti en 2000) selon la recherche Google. Année de cette réédition à confirmer. Label et genre à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "Eminem",
+    "titre": "The Eminem Show",
+    "annee": 2002,
+    "genre": "Hip-hop",
+    "label": "Aftermath / Interscope",
+    "format": "LP",
+    "pochette": "",
+    "notes": "Sorti en 2002 selon la recherche Google. Label et genre à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "Nirvana",
+    "titre": "Nevermind",
+    "annee": 1991,
+    "genre": "Grunge",
+    "label": "DGC",
+    "format": "LP",
+    "pochette": "",
+    "notes": "Étiquette « Le Prix Vert FNAC » à 22,90 € visible sur la pochette. Année et label de cette édition à confirmer (de mémoire, 1991 et DGC). Genre à confirmer. Pochette à recadrer en carré."
+  },
+  {
+    "artiste": "Gorillaz",
+    "titre": "Plastic Beach",
+    "annee": 2010,
+    "genre": "Alternative / Électronique",
+    "label": "à confirmer",
+    "format": "LP",
+    "pochette": "",
+    "notes": "Paru le 3 mars 2010 selon la recherche Google. Label et genre à confirmer. Pochette à recadrer en carré."
+  }
+]

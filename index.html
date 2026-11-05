@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#141418">
+<title>Ma collection de vinyles</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>
+  :root { color-scheme: dark; --bg:#141418; --card:#1f1f26; --txt:#f2f2f5; --muted:#9a9aa6; --accent:#e4572e; --line:#2d2d37; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:var(--bg); color:var(--txt); }
+  header { padding:16px; position:sticky; top:0; background:var(--bg); border-bottom:1px solid var(--line); z-index:2; }
+  h1 { font-size:20px; margin:0 0 4px; }
+  #count { color:var(--muted); font-size:14px; margin:0 0 12px; }
+  .bar { display:flex; flex-wrap:wrap; gap:8px; }
+  input, select, textarea, button { font:inherit; color:var(--txt); background:var(--card); border:1px solid var(--line); border-radius:8px; padding:9px 10px; }
+  input[type=search] { flex:1 1 160px; min-width:0; }
+  button { cursor:pointer; }
+  button.primary { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+  button.danger { color:#ff8a7a; }
+  main { padding:16px; }
+  #grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:14px; }
+  .card { background:var(--card); border-radius:12px; overflow:hidden; display:flex; flex-direction:column; }
+  .cover { aspect-ratio:1/1; background:#2a2a33; display:flex; align-items:center; justify-content:center; }
+  .cover img { width:100%; height:100%; object-fit:cover; display:block; }
+  .cover .ph { font-size:56px; font-weight:700; color:#55556a; }
+  .body { padding:10px; display:flex; flex-direction:column; gap:3px; flex:1; }
+  .body strong { font-size:15px; line-height:1.25; }
+  .body .artist { color:var(--muted); font-size:13px; }
+  .body small { color:var(--muted); font-size:12px; }
+  .notes { color:#b9b9c6; font-size:12px; margin:4px 0 0; }
+  .actions { display:flex; gap:6px; margin-top:auto; padding-top:8px; }
+  .actions button { flex:1; padding:6px; font-size:13px; }
+  #form { display:none; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:16px; }
+  #form.open { display:grid; gap:10px; grid-template-columns:1fr 1fr; }
+  #form label { display:flex; flex-direction:column; gap:4px; font-size:13px; color:var(--muted); }
+  #form .full { grid-column:1 / -1; }
+  #form .btns { display:flex; gap:8px; justify-content:flex-end; grid-column:1 / -1; }
+  #preview { width:100px; height:100px; background:#2a2a33; border-radius:8px; object-fit:cover; display:none; }
+  #empty { color:var(--muted); text-align:center; padding:40px 0; grid-column:1 / -1; }
+  @media (max-width:520px) { #form.open { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Ma collection de vinyles</h1>
+  <p id="count"></p>
+  <div class="bar">
+    <input type="search" id="search" placeholder="Rechercher un artiste, un titre…">
+    <select id="genreSel"><option value="">Tous les genres</option></select>
+    <select id="sortSel">
+      <option value="artiste">Trier par artiste</option>
+      <option value="genre">Trier par genre</option>
+      <option value="annee">Trier par année</option>
+    </select>
+    <button class="primary" id="addBtn">+ Ajouter</button>
+    <button id="exportBtn">Exporter</button>
+    <button id="importBtn">Importer</button>
+    <input type="file" id="importFile" accept="application/json" hidden>
+  </div>
+</header>
+
+<main>
+  <section id="form">
+    <label>Artiste <input id="f_artiste" required></label>
+    <label>Titre <input id="f_titre" required></label>
+    <label>Année <input id="f_annee" type="number" min="1900" max="2100"></label>
+    <label>Genre <input id="f_genre" list="genreList"><datalist id="genreList"></datalist></label>
+    <label>Label <input id="f_label"></label>
+    <label>Format
+      <select id="f_format"><option>LP</option><option>2LP</option><option>EP</option><option>45 tours</option><option>Autre</option></select>
+    </label>
+    <label class="full">Notes <textarea id="f_notes" rows="2"></textarea></label>
+    <label class="full">Photo de la pochette (recadrée en carré au centre)
+      <input type="file" id="f_photo" accept="image/*">
+    </label>
+    <img id="preview" alt="">
+    <div class="btns">
+      <button type="button" id="cancelBtn">Annuler</button>
+      <button type="button" class="primary" id="saveBtn">Enregistrer</button>
+    </div>
+  </section>
+
+  <div id="grid"></div>
+</main>
+
+<script>
+const KEY = "vinyles-collection-v1";
+
+const SEED = [
+{artiste:"Stromae",titre:"Multitude",annee:2022,genre:"Électronique",label:"Mosaert / Polydor",format:"LP",notes:"Genre et label à confirmer."},
+{artiste:"Linkin Park",titre:"From Zero",annee:2024,genre:"Alternative",label:"Warner Records",format:"LP",notes:"Genre à confirmer."},
+{artiste:"Linkin Park",titre:"Hybrid Theory",annee:2000,genre:"Nu metal",label:"Warner Bros.",format:"LP",notes:"Premier album studio. Genre et label à confirmer."},
+{artiste:"The Rolling Stones",titre:"Sticky Fingers",annee:1971,genre:"Rock",label:"Rolling Stones Records",format:"LP",notes:"Pochette d'Andy Warhol avec la vraie fermeture éclair."},
+{artiste:"Cypress Hill",titre:"Black Sunday",annee:1993,genre:"Hip-hop",label:"Ruffhouse / Columbia",format:"LP",notes:"Genre et label à confirmer."},
+{artiste:"Red Hot Chili Peppers",titre:"Californication",annee:1999,genre:"Rock alternatif",label:"Warner Bros. Records",format:"LP",notes:"Sorti le 8 juin 1999."},
+{artiste:"Simple Plan",titre:"Still Not Getting Any...",annee:2004,genre:"Pop punk",label:"Lava / Atlantic",format:"LP",notes:"Édition coke bottle, signée par des membres du groupe."},
+{artiste:"Angèle",titre:"Nonante-Cinq",annee:2021,genre:"Pop",label:"Universal",format:"LP",notes:"Deuxième album. Année, genre et label à confirmer."},
+{artiste:"Jamiroquai",titre:"Emergency on Planet Earth",annee:1993,genre:"Funk / Acid jazz",label:"Sony Soho Square",format:"LP",notes:"Premier album, sorti le 14 juin 1993. Label à confirmer."},
+{artiste:"Queen",titre:"Greatest Hits",annee:1981,genre:"Rock",label:"EMI",format:"2LP",notes:"Année, label et genre à confirmer."},
+{artiste:"AC/DC",titre:"Back in Black",annee:1980,genre:"Hard rock",label:"Atlantic",format:"LP",notes:"Sorti en juillet 1980. Label et genre à confirmer."},
+{artiste:"Blink-182",titre:"Enema of the State",annee:1999,genre:"Pop-punk",label:"MCA",format:"LP",notes:"Autocollant Parental Advisory. Exemplaire avec défaut : verso imprimé à 90°, acheté chez Cultura (24,99 €). Un second exemplaire sans défaut est prévu."},
+{artiste:"Blink-182",titre:"One More Time...",annee:2023,genre:"Pop-punk",label:"à confirmer",format:"LP",notes:"Label à confirmer."},
+{artiste:"Blink-182",titre:"One More Time... Part 2",annee:null,genre:"Pop-punk",label:"à confirmer",format:"LP",notes:"Année et label à confirmer."},
+{artiste:"Johnny Hallyday",titre:"Mon pays c'est l'amour",annee:null,genre:"Rock français",label:"à confirmer",format:"LP",notes:"Année, label et genre à confirmer."},
+{artiste:"Simple Plan",titre:"No Pads, No Helmets... Just Balls",annee:2002,genre:"Pop punk",label:"Atlantic",format:"LP",notes:"Premier album studio. Autocollant « 75 ans Atlantic »."},
+{artiste:"Louise Attaque",titre:"Louise Attaque",annee:1997,genre:"Rock français",label:"à confirmer",format:"LP",notes:"Premier album éponyme, avril 1997."},
+{artiste:"The Offspring",titre:"Conspiracy of One",annee:null,genre:"Punk rock",label:"à confirmer",format:"LP",notes:"Année et label à confirmer."},
+{artiste:"The Offspring",titre:"Supercharged",annee:2024,genre:"Punk rock",label:"Concord Records",format:"LP",notes:"Sorti le 11 octobre 2024."},
+{artiste:"The Offspring",titre:"Americana",annee:1998,genre:"Punk rock",label:"à confirmer",format:"LP",notes:"Année à confirmer (1998 de mémoire)."},
+{artiste:"Limp Bizkit",titre:"Significant Other",annee:1999,genre:"Nu metal",label:"Interscope",format:"LP",notes:"Sorti en juin 1999. Label et genre à confirmer."},
+{artiste:"System of a Down",titre:"Mezmerize",annee:2005,genre:"Metal alternatif",label:"American Recordings / Columbia",format:"LP",notes:"Édition vinyle probablement une réédition (2018)."},
+{artiste:"System of a Down",titre:"Toxicity",annee:2001,genre:"Metal alternatif",label:"American Recordings / Columbia",format:"LP",notes:"Date de cette édition à confirmer."},
+{artiste:"Daft Punk",titre:"Human After All",annee:2005,genre:"Electronic",label:"Virgin",format:"2LP",notes:"Exemplaire scellé. Label et genre à confirmer."},
+{artiste:"Soprano",titre:"Cosmopolitanie",annee:2014,genre:"Rap français",label:"à confirmer",format:"LP",notes:"Étiquette de prix sur la pochette. Label à confirmer."},
+{artiste:"Soprano",titre:"Freedom",annee:2024,genre:"Rap français",label:"Rec. 118",format:"LP",notes:"Autocollant « 2 pour 60 € ». Genre à confirmer."},
+{artiste:"Red Hot Chili Peppers",titre:"Unlimited Love",annee:2022,genre:"Rock alternatif",label:"Warner Records",format:"2LP",notes:"17 chansons. Exemplaire scellé. Genre à confirmer."},
+{artiste:"Måneskin",titre:"Chosen",annee:2017,genre:"Rock",label:"à confirmer",format:"EP",notes:"EP (et non LP) : à confirmer sur le disque."},
+{artiste:"Disturbed",titre:"The Sickness",annee:2025,genre:"Metal",label:"Reprise / Warner",format:"LP",notes:"Édition 25e anniversaire, tirage limité, vinyle coloré, exclusivité Cultura. Année à confirmer."},
+{artiste:"Eminem",titre:"The Eminem Show",annee:2002,genre:"Hip-hop",label:"Aftermath / Interscope",format:"LP",notes:"Genre à confirmer."},
+{artiste:"Nirvana",titre:"Nevermind",annee:1991,genre:"Grunge",label:"DGC",format:"LP",notes:"Étiquette « Le Prix Vert FNAC » 22,90 €. Année et label à confirmer."},
+{artiste:"Gorillaz",titre:"Plastic Beach",annee:2010,genre:"Alternative / Électronique",label:"à confirmer",format:"LP",notes:"Sorti le 3 mars 2010."}
+];
+
+// ---------- données ----------
+function load() {
+  try {
+    const saved = localStorage.getItem(KEY);
+    if (saved) return JSON.parse(saved);
+  } catch (e) {}
+  const init = SEED.map((r, i) => ({ id: "s" + i, pochette: "", ...r }));
+  save(init);
+  return init;
+}
+function save(list) {
+  try { localStorage.setItem(KEY, JSON.stringify(list)); }
+  catch (e) { alert("Stockage plein : exportez la collection et supprimez des photos."); }
+}
+let items = load();
+
+// ---------- outils ----------
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fr = (a, b) => String(a ?? "").localeCompare(String(b ?? ""), "fr", { sensitivity: "base" });
+
+function fillGenres() {
+  const genres = [...new Set(items.map(i => i.genre).filter(Boolean))].sort(fr);
+  const cur = $("genreSel").value;
+  $("genreSel").innerHTML = '<option value="">Tous les genres</option>' +
+    genres.map(g => `<option ${g === cur ? "selected" : ""}>${esc(g)}</option>`).join("");
+  $("genreList").innerHTML = genres.map(g => `<option value="${esc(g)}">`).join("");
+}
+
+// ---------- affichage ----------
+function cmp(sort) {
+  if (sort === "genre") return (a, b) => fr(a.genre, b.genre) || fr(a.artiste, b.artiste) || fr(a.titre, b.titre);
+  if (sort === "annee") return (a, b) => (a.annee ?? 9999) - (b.annee ?? 9999) || fr(a.artiste, b.artiste);
+  return (a, b) => fr(a.artiste, b.artiste) || fr(a.titre, b.titre);
+}
+
+function card(i) {
+  const cover = i.pochette
+    ? `<img src="${i.pochette}" alt="">`
+    : `<div class="ph">${esc((i.artiste || "?").trim()[0] || "?")}</div>`;
+  const meta = [i.annee, i.genre, i.format].filter(Boolean).join(" · ");
+  return `<article class="card">
+    <div class="cover">${cover}</div>
+    <div class="body">
+      <strong>${esc(i.titre)}</strong>
+      <span class="artist">${esc(i.artiste)}</span>
+      <small>${esc(meta)}</small>
+      ${i.label ? `<small>${esc(i.label)}</small>` : ""}
+      ${i.notes ? `<p class="notes">${esc(i.notes)}</p>` : ""}
+      <div class="actions">
+        <button data-edit="${i.id}">Modifier</button>
+        <button class="danger" data-del="${i.id}">Supprimer</button>
+      </div>
+    </div>
+  </article>`;
+}
+
+function render() {
+  const q = $("search").value.trim().toLowerCase();
+  const g = $("genreSel").value;
+  const list = items
+    .filter(i => (!g || i.genre === g) && (!q || [i.artiste, i.titre, i.genre].join(" ").toLowerCase().includes(q)))
+    .sort(cmp($("sortSel").value));
+  $("count").textContent = `${items.length} disque(s)` + (list.length !== items.length ? ` · ${list.length} affiché(s)` : "");
+  $("grid").innerHTML = list.length ? list.map(card).join("") : '<p id="empty">Aucun disque ne correspond.</p>';
+}
+
+// ---------- formulaire ----------
+let editingId = null;
+let photoData = "";
+
+function openForm(id) {
+  editingId = id || null;
+  const item = id ? items.find(i => i.id === id) : null;
+  $("f_artiste").value = item?.artiste ?? "";
+  $("f_titre").value = item?.titre ?? "";
+  $("f_annee").value = item?.annee ?? "";
+  $("f_genre").value = item?.genre ?? "";
+  $("f_label").value = item?.label ?? "";
+  $("f_format").value = item?.format ?? "LP";
+  $("f_notes").value = item?.notes ?? "";
+  $("f_photo").value = "";
+  photoData = item?.pochette ?? "";
+  $("preview").src = photoData;
+  $("preview").style.display = photoData ? "block" : "none";
+  $("form").classList.add("open");
+  $("form").scrollIntoView({ behavior: "smooth" });
+}
+
+function closeForm() {
+  $("form").classList.remove("open");
+  editingId = null;
+}
+
+// Recadrage carré au centre (la perspective n'est pas corrigée)
+function cropSquare(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const s = Math.min(img.width, img.height), size = 600;
+      const c = document.createElement("canvas");
+      c.width = c.height = size;
+      c.getContext("2d").drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, size, size);
+      URL.revokeObjectURL(url);
+      resolve(c.toDataURL("image/jpeg", 0.85));
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+$("f_photo").addEventListener("change", async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  photoData = await cropSquare(file);
+  $("preview").src = photoData;
+  $("preview").style.display = "block";
+});
+
+$("saveBtn").addEventListener("click", () => {
+  const artiste = $("f_artiste").value.trim();
+  const titre = $("f_titre").value.trim();
+  if (!artiste || !titre) { alert("Artiste et titre sont obligatoires."); return; }
+  const annee = parseInt($("f_annee").value, 10);
+  const data = {
+    artiste, titre,
+    annee: Number.isNaN(annee) ? null : annee,
+    genre: $("f_genre").value.trim(),
+    label: $("f_label").value.trim(),
+    format: $("f_format").value,
+    notes: $("f_notes").value.trim(),
+    pochette: photoData
+  };
+  if (editingId) {
+    items = items.map(i => i.id === editingId ? { ...i, ...data } : i);
+  } else {
+    items.push({ id: "u" + Date.now(), ...data });
+  }
+  save(items);
+  fillGenres();
+  closeForm();
+  render();
+});
+
+$("cancelBtn").addEventListener("click", closeForm);
+$("addBtn").addEventListener("click", () => openForm(null));
+
+// ---------- liste ----------
+$("grid").addEventListener("click", e => {
+  const edit = e.target.dataset.edit, del = e.target.dataset.del;
+  if (edit) openForm(edit);
+  if (del) {
+    const item = items.find(i => i.id === del);
+    if (confirm(`Supprimer « ${item.titre} » de ${item.artiste} ?`)) {
+      items = items.filter(i => i.id !== del);
+      save(items);
+      fillGenres();
+      render();
+    }
+  }
+});
+
+$("search").addEventListener("input", render);
+$("genreSel").addEventListener("change", render);
+$("sortSel").addEventListener("change", render);
+
+// ---------- sauvegarde ----------
+$("exportBtn").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(items, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "ma-collection-vinyles.json";
+  a.click();
+});
+
+$("importBtn").addEventListener("click", () => $("importFile").click());
+$("importFile").addEventListener("change", async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const data = JSON.parse(await file.text());
+    if (!Array.isArray(data)) throw new Error();
+    if (!confirm(`Remplacer la collection actuelle par les ${data.length} disque(s) du fichier ?`)) return;
+    items = data;
+    save(items);
+    fillGenres();
+    render();
+  } catch (err) {
+    alert("Fichier non reconnu.");
+  }
+});
+
+// ---------- démarrage ----------
+fillGenres();
+render();
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
+</script>
+</body>
+</html>
