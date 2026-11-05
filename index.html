@@ -15,6 +15,7 @@
   header { padding:16px; position:sticky; top:0; background:var(--bg); border-bottom:1px solid var(--line); z-index:2; }
   h1 { font-size:20px; margin:0 0 4px; }
   #count { color:var(--muted); font-size:14px; margin:0 0 12px; }
+  #status { font-size:12px; color:var(--muted); margin:0 0 10px; }
   .bar { display:flex; flex-wrap:wrap; gap:8px; }
   input, select, textarea, button { font:inherit; color:var(--txt); background:var(--card); border:1px solid var(--line); border-radius:8px; padding:9px 10px; }
   input[type=search] { flex:1 1 160px; min-width:0; }
@@ -48,6 +49,7 @@
 <header>
   <h1>Ma collection de vinyles</h1>
   <p id="count"></p>
+  <p id="status"></p>
   <div class="bar">
     <input type="search" id="search" placeholder="Rechercher un artiste, un titre…">
     <select id="genreSel"><option value="">Tous les genres</option></select>
@@ -87,9 +89,27 @@
   <div id="grid"></div>
 </main>
 
-<script>
-const KEY = "vinyles-collection-v1";
+<script type="module">
+// ============================================================
+// CONFIGURATION FIREBASE
+// Collez ici le bloc firebaseConfig (Paramètres du projet > Vos applications).
+// Tant que c'est null, l'appli fonctionne en mode local (non partagé).
+// ============================================================
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCVo6n0dw7zVP08pNjelGdAIJOEqrw9Bwo",
+  authDomain: "vinyles-d996f.firebaseapp.com",
+  projectId: "vinyles-d996f",
+  storageBucket: "vinyles-d996f.firebasestorage.app",
+  messagingSenderId: "761271334444",
+  appId: "1:761271334444:web:42a695c35174d628974389"
+};
 
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, collection, doc, setDoc, deleteDoc, getDoc, onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const KEY = "vinyles-collection-v1";
 const SEED = [
 {artiste:"Stromae",titre:"Multitude",annee:2022,genre:"Électronique",label:"Mosaert / Polydor",format:"LP",notes:"Genre et label à confirmer."},
 {artiste:"Linkin Park",titre:"From Zero",annee:2024,genre:"Alternative",label:"Warner Records",format:"LP",notes:"Genre à confirmer."},
@@ -125,27 +145,61 @@ const SEED = [
 {artiste:"Gorillaz",titre:"Plastic Beach",annee:2010,genre:"Alternative / Électronique",label:"à confirmer",format:"LP",notes:"Sorti le 3 mars 2010."}
 ];
 
-// ---------- données ----------
-function load() {
-  try {
-    const saved = localStorage.getItem(KEY);
-    if (saved) return JSON.parse(saved);
-  } catch (e) {}
-  const init = SEED.map((r, i) => ({ id: "s" + i, pochette: "", ...r }));
-  save(init);
-  return init;
-}
-function save(list) {
-  try { localStorage.setItem(KEY, JSON.stringify(list)); }
-  catch (e) { alert("Stockage plein : exportez la collection et supprimez des photos."); }
-}
-let items = load();
-
-// ---------- outils ----------
+// ---------- stockage ----------
+let db = null;
+let items = [];
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fr = (a, b) => String(a ?? "").localeCompare(String(b ?? ""), "fr", { sensitivity: "base" });
+const newId = () => "u" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 
+function localLoad() {
+  try { const s = localStorage.getItem(KEY); if (s) return JSON.parse(s); } catch (e) {}
+  return SEED.map((r, i) => ({ id: "seed-" + i, pochette: "", ...r }));
+}
+function localSave(list) {
+  try { localStorage.setItem(KEY, JSON.stringify(list)); } catch (e) { alert("Stockage plein sur ce téléphone."); }
+}
+
+async function putItem(item) {
+  if (db) { await setDoc(doc(db, "disques", item.id), item); }
+  else { items = items.some(i => i.id === item.id) ? items.map(i => i.id === item.id ? item : i) : [...items, item]; localSave(items); render(); }
+}
+async function removeItem(id) {
+  if (db) { await deleteDoc(doc(db, "disques", id)); }
+  else { items = items.filter(i => i.id !== id); localSave(items); render(); }
+}
+
+function setStatus(text) { $("status").textContent = text; }
+
+// ---------- démarrage ----------
+if (FIREBASE_CONFIG) {
+  try {
+    const app = getApps().length ? getApps()[0] : initializeApp(FIREBASE_CONFIG);
+    db = getFirestore(app);
+    setStatus("Connexion à la collection partagée…");
+    const metaRef = doc(db, "meta", "init");
+    const meta = await getDoc(metaRef);
+    if (!meta.exists()) {
+      // Première ouverture : on envoie la liste de départ (identifiants fixes, sans doublon)
+      for (let i = 0; i < SEED.length; i++) await setDoc(doc(db, "disques", "seed-" + i), { id: "seed-" + i, pochette: "", ...SEED[i] });
+      await setDoc(metaRef, { done: true });
+    }
+    onSnapshot(collection(db, "disques"), snap => {
+      items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      setStatus("Collection partagée · synchronisée");
+      fillGenres(); render();
+    }, err => setStatus("Erreur de connexion : " + err.message));
+  } catch (e) {
+    setStatus("Firebase indisponible, mode local : " + e.message);
+    items = localLoad(); fillGenres(); render();
+  }
+} else {
+  setStatus("Mode local : cette collection n'est pas partagée (voir la configuration Firebase).");
+  items = localLoad(); fillGenres(); render();
+}
+
+// ---------- affichage ----------
 function fillGenres() {
   const genres = [...new Set(items.map(i => i.genre).filter(Boolean))].sort(fr);
   const cur = $("genreSel").value;
@@ -153,14 +207,11 @@ function fillGenres() {
     genres.map(g => `<option ${g === cur ? "selected" : ""}>${esc(g)}</option>`).join("");
   $("genreList").innerHTML = genres.map(g => `<option value="${esc(g)}">`).join("");
 }
-
-// ---------- affichage ----------
 function cmp(sort) {
   if (sort === "genre") return (a, b) => fr(a.genre, b.genre) || fr(a.artiste, b.artiste) || fr(a.titre, b.titre);
   if (sort === "annee") return (a, b) => (a.annee ?? 9999) - (b.annee ?? 9999) || fr(a.artiste, b.artiste);
   return (a, b) => fr(a.artiste, b.artiste) || fr(a.titre, b.titre);
 }
-
 function card(i) {
   const cover = i.pochette
     ? `<img src="${i.pochette}" alt="">`
@@ -181,7 +232,6 @@ function card(i) {
     </div>
   </article>`;
 }
-
 function render() {
   const q = $("search").value.trim().toLowerCase();
   const g = $("genreSel").value;
@@ -195,7 +245,6 @@ function render() {
 // ---------- formulaire ----------
 let editingId = null;
 let photoData = "";
-
 function openForm(id) {
   editingId = id || null;
   const item = id ? items.find(i => i.id === id) : null;
@@ -213,30 +262,25 @@ function openForm(id) {
   $("form").classList.add("open");
   $("form").scrollIntoView({ behavior: "smooth" });
 }
+function closeForm() { $("form").classList.remove("open"); editingId = null; }
 
-function closeForm() {
-  $("form").classList.remove("open");
-  editingId = null;
-}
-
-// Recadrage carré au centre (la perspective n'est pas corrigée)
-function cropSquare(file) {
+// Recadrage carré au centre, réduit pour rester sous la limite de taille d'un document Firestore
+function cropSquare(file, size = 400) {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);
     const img = new Image();
     img.onload = () => {
-      const s = Math.min(img.width, img.height), size = 600;
+      const s = Math.min(img.width, img.height);
       const c = document.createElement("canvas");
       c.width = c.height = size;
       c.getContext("2d").drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, size, size);
       URL.revokeObjectURL(url);
-      resolve(c.toDataURL("image/jpeg", 0.85));
+      resolve(c.toDataURL("image/jpeg", 0.7));
     };
     img.onerror = reject;
     img.src = url;
   });
 }
-
 $("f_photo").addEventListener("change", async e => {
   const file = e.target.files[0];
   if (!file) return;
@@ -244,13 +288,13 @@ $("f_photo").addEventListener("change", async e => {
   $("preview").src = photoData;
   $("preview").style.display = "block";
 });
-
-$("saveBtn").addEventListener("click", () => {
+$("saveBtn").addEventListener("click", async () => {
   const artiste = $("f_artiste").value.trim();
   const titre = $("f_titre").value.trim();
   if (!artiste || !titre) { alert("Artiste et titre sont obligatoires."); return; }
   const annee = parseInt($("f_annee").value, 10);
-  const data = {
+  const item = {
+    id: editingId || newId(),
     artiste, titre,
     annee: Number.isNaN(annee) ? null : annee,
     genre: $("f_genre").value.trim(),
@@ -259,40 +303,30 @@ $("saveBtn").addEventListener("click", () => {
     notes: $("f_notes").value.trim(),
     pochette: photoData
   };
-  if (editingId) {
-    items = items.map(i => i.id === editingId ? { ...i, ...data } : i);
-  } else {
-    items.push({ id: "u" + Date.now(), ...data });
-  }
-  save(items);
-  fillGenres();
-  closeForm();
-  render();
+  if (photoData.length > 900000) { alert("Cette photo est trop lourde pour être partagée. Essayez une photo plus petite."); return; }
+  try {
+    await putItem(item);
+    closeForm();
+  } catch (e) { alert("Enregistrement impossible : " + e.message); }
 });
-
 $("cancelBtn").addEventListener("click", closeForm);
 $("addBtn").addEventListener("click", () => openForm(null));
 
-// ---------- liste ----------
-$("grid").addEventListener("click", e => {
+$("grid").addEventListener("click", async e => {
   const edit = e.target.dataset.edit, del = e.target.dataset.del;
   if (edit) openForm(edit);
   if (del) {
     const item = items.find(i => i.id === del);
-    if (confirm(`Supprimer « ${item.titre} » de ${item.artiste} ?`)) {
-      items = items.filter(i => i.id !== del);
-      save(items);
-      fillGenres();
-      render();
+    if (confirm(`Supprimer « ${item.titre} » de ${item.artiste} ? Il disparaîtra aussi chez les autres.`)) {
+      try { await removeItem(del); } catch (err) { alert("Suppression impossible : " + err.message); }
     }
   }
 });
-
 $("search").addEventListener("input", render);
 $("genreSel").addEventListener("change", render);
 $("sortSel").addEventListener("change", render);
 
-// ---------- sauvegarde ----------
+// ---------- export / import (sauvegarde, sans les photos si elles sont trop lourdes) ----------
 $("exportBtn").addEventListener("click", () => {
   const blob = new Blob([JSON.stringify(items, null, 2)], { type: "application/json" });
   const a = document.createElement("a");
@@ -300,27 +334,26 @@ $("exportBtn").addEventListener("click", () => {
   a.download = "ma-collection-vinyles.json";
   a.click();
 });
-
 $("importBtn").addEventListener("click", () => $("importFile").click());
 $("importFile").addEventListener("change", async e => {
   const file = e.target.files[0];
   if (!file) return;
   try {
     const data = JSON.parse(await file.text());
-    if (!Array.isArray(data)) throw new Error();
-    if (!confirm(`Remplacer la collection actuelle par les ${data.length} disque(s) du fichier ?`)) return;
-    items = data;
-    save(items);
-    fillGenres();
-    render();
+    if (!Array.isArray(data)) throw new Error("format");
+    let added = 0;
+    for (const it of data) {
+      const exists = items.some(i => i.artiste === it.artiste && i.titre === it.titre);
+      if (exists) continue;
+      await putItem({ ...it, id: newId(), pochette: it.pochette || "" });
+      added++;
+    }
+    alert(`${added} disque(s) ajouté(s). Les doublons ont été ignorés.`);
   } catch (err) {
     alert("Fichier non reconnu.");
   }
 });
 
-// ---------- démarrage ----------
-fillGenres();
-render();
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
 </script>
 </body>
